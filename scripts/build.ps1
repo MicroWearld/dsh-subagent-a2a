@@ -47,12 +47,23 @@ Link-Pkg 'node_modules\schemastery' (Join-Path $checkout 'vendor\schemastery')
 Link-Pkg 'node_modules\@deepseek-ai\dsh-llm' (Join-Path $checkout 'packages\llm\llm')
 Link-Pkg 'node_modules\@deepseek-ai\dsh-session' (Join-Path $checkout 'packages\core\session')
 Link-Pkg 'node_modules\@deepseek-ai\dsh-subagent' (Join-Path $checkout 'packages\subagent\subagent')
-$a2aSdk = Join-Path $checkout 'packages\a2a\a2a-protocol\node_modules\@a2a-js\sdk'
-if (-not (Test-Path $a2aSdk)) {
-  $storeEntry = Get-ChildItem (Join-Path $checkout 'node_modules\.pnpm') -Directory -Filter '@a2a-js+sdk@*' | Select-Object -First 1
-  if ($storeEntry) { $a2aSdk = Join-Path $storeEntry.FullName 'node_modules\@a2a-js\sdk' }
+$a2aWorkspace = Join-Path $checkout 'packages\a2a\a2a-protocol'
+$a2aSdk = & node -e @'
+const fs = require('fs');
+const path = require('path');
+const { createRequire } = require('module');
+const req = createRequire(path.resolve(process.argv[1], 'package.json'));
+let current = req.resolve('@a2a-js/sdk');
+while (!fs.existsSync(path.join(current, 'package.json'))) {
+  const parent = path.dirname(current);
+  if (parent === current) process.exit(1);
+  current = parent;
 }
-if (-not (Test-Path $a2aSdk)) { throw 'build: cannot locate @a2a-js/sdk in the dsh checkout' }
+process.stdout.write(current);
+'@ $a2aWorkspace
+if ($LASTEXITCODE -ne 0 -or -not $a2aSdk -or -not (Test-Path $a2aSdk)) {
+  throw 'build: cannot locate @a2a-js/sdk in the dsh checkout'
+}
 Link-Pkg 'node_modules\@a2a-js\sdk' $a2aSdk
 Link-Pkg 'node_modules\@types\node' (Join-Path $checkout 'node_modules\@types\node')
 
