@@ -1,0 +1,10 @@
+# A2A client provider plugin bundle patch: register the `a2a` subagent
+# provider. Override `url` / `agentCardPath` via a higher profile patch.
+
+- insert:
+    - id: subagent-a2a
+      name: 'dsh-subagent-a2a'
+      config:
+        providerName: a2a
+        url: http://127.0.0.1:4123
+        agentCardPath: /.well-known/agent.json
