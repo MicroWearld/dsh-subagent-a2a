@@ -34,15 +34,16 @@ npm run build:ps1
 
 ## 安装
 
-```powershell
-dev_inject_plugin --dir D:\workspace\dsh\dsh-subagent-a2a
-```
-
-或作为 bundle 安装：
+使用 DSH 官方插件装配命令：
 
 ```powershell
-dev_install_package --dir D:\workspace\dsh\dsh-subagent-a2a
+cd D:\workspace\dsh
+dsh plugin --profile desktop add .\dsh-subagent-a2a\
 ```
+
+安装完成后重启 DSH Desktop（或对应 profile 的运行时）使插件加载。
+
+> 说明：`dsh plugin add` 会将该插件写入 profile 的 `dependencies` 与 `bundles`，并按官方装配流程加载 `cordis.patch.yml`。
 
 ## 配置示例
 
